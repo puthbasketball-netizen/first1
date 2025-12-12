@@ -1,83 +1,40 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
+# 修改标签页的文字和图标
+st.set_page_config(page_title="相册", page_icon="🐾")
+st.title("我的相册")
 
-# ---------------------- 页面配置 ----------------------
-st.set_page_config(
-    page_title="南宁美食数据仪表盘",
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
+# 如果内存中没有ind，才需要设置为0，否则不要设置ind
+if 'ind' not in st.session_state:
+    st.session_state['ind'] = 0
 
-# ---------------------- 核心数据定义 ----------------------
-# 1. 餐厅基础信息（5家不同类型、价格差异大）
-restaurants = {
-    "餐厅名称": ["邕城粉都", "壮乡酸嘢馆", "东盟海鲜城", "老友居私厨", "法式轻食坊"],
-    "类型": ["快餐", "小吃", "海鲜", "私房菜", "西餐"],
-    "评分": [4.1, 4.3, 4.6, 4.8, 4.4],
-    "人均消费(元)": [12, 8, 120, 88, 65],
-    "latitude": [22.8170, 22.8250, 22.7980, 22.8050, 22.8210],
-    "longitude": [108.3500, 108.3320, 108.3200, 108.3450, 108.3600]
-}
-df_rest = pd.DataFrame(restaurants)
+images = [
+    {
+        'url': "https://img1.baidu.com/it/u=2528176158,3706650567&fm=253&fmt=auto&app=138&f=JPEG?w=1200&h=800",
+        'text': '猫'
+    },
+    {
+        'url': "https://pic.616pic.com/photoone/00/02/40/618cf416207693898.jpg!/fw/1120",
+        'text': 'dog'
+    },
+    {
+        'url': "https://img95.699pic.com/photo/60017/6146.jpg_wh860.jpg",
+        'text': 'lion'
+    }
+]
 
-# 2. 用餐高峰时段数据
-hours = [10, 11, 12, 13, 17, 18, 19, 20]
-peak_hours = {
-    "时段(时)": hours,
-    "邕城粉都": [30, 80, 95, 60, 40, 75, 85, 50],
-    "壮乡酸嘢馆": [20, 50, 70, 40, 30, 60, 75, 45],
-    "东盟海鲜城": [10, 20, 30, 25, 40, 80, 90, 60],
-    "老友居私厨": [5, 15, 25, 20, 35, 70, 85, 55],
-    "法式轻食坊": [8, 20, 30, 25, 30, 50, 65, 40]
-}
-df_peak = pd.DataFrame(peak_hours)
+# url:图片的地址 caption:图片注释介绍
+st.image(images[st.session_state['ind']]['url'], caption=images[st.session_state['ind']]['text'])
 
-# 统一图表颜色（一一对应餐厅）
-chart_colors = ["#FF9999", "#66B2FF", "#99FF99", "#FFCC99", "#FF99CC"]
+def nextImg():
+    st.session_state['ind'] = (st.session_state['ind'] + 1) % len(images)
 
-# ---------------------- 竖向核心布局 ----------------------
-st.title("🍜 南宁美食核心数据仪表盘")
-st.markdown("---")
+def prevImg():
+    st.session_state['ind'] = (st.session_state['ind'] - 1) % len(images)
 
-# 1. 餐厅位置分布地图
-st.header("📍 餐厅地理位置分布")
-st.map(
-    df_rest.rename(columns={"latitude": "lat", "longitude": "lon"}),
-    zoom=12,
-    use_container_width=True
-)
-st.markdown("---")
-
-# 2. 餐厅评分对比
-st.header("⭐ 餐厅评分对比")
-st.bar_chart(
-    df_rest.set_index("餐厅名称")["评分"],
-    y_label="评分（满分5分）",
-    color="#FF6B6B",
-    use_container_width=True,
-    height=400
-)
-st.markdown("---")
-
-# 3. 不同类型餐厅价格对比
-st.header("💰 不同类型餐厅人均消费")
-st.bar_chart(
-    df_rest.set_index("类型")["人均消费(元)"],
-    y_label="人均消费（元）",
-    color="#4ECDC4",
-    use_container_width=True,
-    height=400
-)
-st.markdown("---")
-
-# 4. 用餐高峰时段（分餐厅+颜色标注）
-st.header("⏰ 餐厅用餐高峰时段")
-st.area_chart(
-    df_peak.set_index("时段(时)"),
-    y_label="客流量（人次）",
-    color=chart_colors,
-    use_container_width=True,
-    height=500
-)
-st.caption("🔍 颜色对应：邕城粉都(浅红)、壮乡酸嘢馆(浅蓝)、东盟海鲜城(浅绿)、老友居私厨(浅黄)、法式轻食坊(浅粉)")
+# 分列容器 课本110页
+c1, c2 = st.columns(2)
+with c1:
+    st.button("上一张", on_click=prevImg, use_container_width=True)
+with c2:
+    # 按钮 课本73页
+    st.button("下一张", on_click=nextImg, use_container_width=True)
